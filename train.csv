@@ -1,0 +1,9 @@
+text,label
+"Open the chest",0
+"Get something from the chest",0
+"Please, get an item from the chest",0
+"Don't get wheat",0
+"Break wheat",1
+"Gather wheat",1
+"Get plants",1
+"Don't open the chest",1
