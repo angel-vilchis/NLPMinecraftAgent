@@ -1,8 +1,14 @@
 from __future__ import print_function
 
 from builtins import range
-from malmo import MalmoPython
-import malmoenv
+try:
+    from malmo import MalmoPython
+except (ImportError, ModuleNotFoundError):
+    print("Error importing MalmoPython from malmo. Trying with the local file.")
+    try:
+        import MalmoPython
+    except (ImportError, ModuleNotFoundError):
+        print("Error importing MalmoPython from local file.")
 from pathlib import Path
 import os
 import sys
@@ -36,12 +42,13 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                   <DrawingDecorator>
                     <DrawBlock x="0" y="227" z="10" type="chest"/>
                     <DrawBlock x="5" y="227" z="5" type="red_flower"/>
+                    <DrawEntity x="15" y="227" z="15" type="Horse"/>
                   </DrawingDecorator>
                   <ServerQuitWhenAnyAgentFinishes/>
                 </ServerHandlers>
               </ServerSection>
               
-              <AgentSection mode="Survival">
+              <AgentSection mode="Creative">
                 <Name>Jerry</Name>
                 <AgentStart>
                   <Placement x="0.5" y="227" z="0" yaw="0"/>
@@ -50,6 +57,9 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                   <ObservationFromFullStats/>
                   <ContinuousMovementCommands turnSpeedDegs="180"/>
                   <AbsoluteMovementCommands/>
+                  <ObservationFromNearbyEntities>
+                    <Range name="NearbyEntities" xrange="200" yrange="200" zrange="200"/>
+                  </ObservationFromNearbyEntities>
                 </AgentHandlers>
               </AgentSection>
             </Mission>'''
@@ -67,13 +77,14 @@ if agent_host.receivedArgument("help"):
     exit(0)
 
 my_mission = MalmoPython.MissionSpec(missionXML, True)
-my_mission_record = MalmoPython.MissionRecordSpec()
+my_mission_record = MalmoPython.MissionRecordSpec(f"data-{time.time()}.tgz")
+my_mission_record.recordObservations()
 
 # Attempt to start a mission:
 max_retries = 3
 for retry in range(max_retries):
     try:
-        agent_host.startMission( my_mission, my_mission_record )
+        agent_host.startMission(my_mission, my_mission_record)
         break
     except RuntimeError as e:
         if retry == max_retries - 1:
@@ -101,7 +112,6 @@ while world_state.is_mission_running:
     input_text = input("Enter text: ")
     task = helpers.get_prediction(input_text)
     exec(f"helpers.task_{task}(agent_host)")
-    helpers.reset_agent(agent_host)
     world_state = agent_host.getWorldState()
     
     for error in world_state.errors:
