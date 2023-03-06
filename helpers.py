@@ -3,8 +3,6 @@ import json
 from dataclasses import dataclass
 from setfit import SetFitModel
 
-DEBUG = False
-
 nlp_model = SetFitModel.from_pretrained("malmoTextClassifier")
 
 @dataclass
@@ -68,6 +66,10 @@ def task_0(agent_host):
     agent_host.sendCommand("use 1")
     time.sleep(2)
 
+    if DEBUG:
+        reset_agent(agent_host)
+
+
 def task_1(agent_host):
     """
     Complete task of breaking flower
@@ -95,9 +97,12 @@ def task_1(agent_host):
     agent_host.sendCommand("pitch 0")
 
     # Break flower
-    agent_host.sendCommand("attack 1")
-    agent_host.sendCommand("attack 0")
+    # agent_host.sendCommand("attack 1")
+    # agent_host.sendCommand("attack 0")
     time.sleep(2)
+
+    if DEBUG:
+        reset_agent(agent_host)
 
 def task_2(agent_host):
     """Go to horse"""

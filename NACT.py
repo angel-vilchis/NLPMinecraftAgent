@@ -13,8 +13,14 @@ from pathlib import Path
 import os
 import sys
 import time
+import argparse
 
 import helpers
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', dest='debug', action='store_true', default=False)
+args = parser.parse_args()
+helpers.DEBUG = args.debug
+
 
 if sys.version_info[0] == 2:
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 0)  # flush print output immediately
@@ -67,7 +73,9 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 agent_host = MalmoPython.AgentHost()
 
 try:
-    agent_host.parse( sys.argv )
+    if "--debug" in sys.argv:
+      sys.argv.remove("--debug")
+    agent_host.parse(sys.argv)
 except RuntimeError as e:
     print('ERROR:',e)
     print(agent_host.getUsage())

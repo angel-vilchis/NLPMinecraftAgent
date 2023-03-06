@@ -1,12 +1,11 @@
 text,label
 "Get me item from storage",0
-"Retrieve an item",0
-"Interact with the chest",0
 "Open that storage and get me something",0
+"Get me diamonds from that chest",0
 "Get me an item from nature",1
-"Break an item",1
-"Break that plant",1
-"Remove plant",1
+"Break an item on grass",1
 "Extract plant",1
-"Do whatever you want",-1
 "Go to horse",2
+"Run towards that pig",2
+"Arrive at the horse",2
+"Do whatever you want",-1
