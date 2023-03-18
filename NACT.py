@@ -72,6 +72,15 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 agent_host = MalmoPython.AgentHost()
 
+label_names = {0: "Opening chest", 
+               1: "Breaking plant",
+               2: "Going to horse",
+               3: "Jumping in water", 
+               4: "Sitting next to campfire",
+               5: "Playing music",
+               6: "Going through fence",
+               7: "Going inside door"}
+
 try:
     if "--debug" in sys.argv:
       sys.argv.remove("--debug")
@@ -119,6 +128,7 @@ print("Mission running...")
 while world_state.is_mission_running:
     input_text = input("Enter text: ")
     task = helpers.get_prediction(input_text)
+    print(label_names[task])
     exec(f"helpers.task_{task}(agent_host)")
     world_state = agent_host.getWorldState()
     

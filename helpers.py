@@ -50,7 +50,6 @@ def task_0(agent_host):
     """
     Complete task of opening chest
     """
-    print("Opening the chest")
     # Move straight towards chest
     agent_host.sendCommand("move 1")
     time.sleep(2.25)
@@ -74,7 +73,6 @@ def task_1(agent_host):
     """
     Complete task of breaking flower
     """
-    print("Breaking a flower")
     # Move straight towards being adjacent to flower
     agent_host.sendCommand("move 1")
     time.sleep(1.3)
@@ -106,7 +104,6 @@ def task_1(agent_host):
 
 def task_2(agent_host):
     """Go to horse"""
-    print("Going to horse")
     position = find_entity(agent_host, 'Horse')
     if position is not None:
         if DEBUG: print(position.teleport_str())
@@ -115,6 +112,26 @@ def task_2(agent_host):
         agent_host.sendCommand("setPitch 0")
     else:
         print("Could not find a horse.")
+
+def task_3(agent_host):
+    """Get in water"""
+    pass
+
+def task_4(agent_host):
+    """Go next to campfire"""
+    pass
+
+def task_5(agent_host):
+    """Hit jukebox"""
+    pass
+
+def task_6(agent_host):
+    """Go through gate"""
+    pass
+
+def task_7(agent_host):
+    """Go through door"""
+    pass
 
 def reset_agent(agent_host, teleport_x=0.5, teleport_z=0):
     """Directly teleport to spawn and reset direction agent is facing."""

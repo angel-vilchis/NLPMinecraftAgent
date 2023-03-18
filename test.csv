@@ -7,5 +7,20 @@ text,label
 "Extract plant",1
 "Go to horse",2
 "Run towards that pig",2
-"Arrive at the horse",2
+"Arrive at the animal",2
+"Go take a dive in water",3
+"Get in that lake",3
+"Dip your feet in there",3
+"Warm up your hands",4
+"Heat up",4
+"Go to the fire",4
+"Please, make music",5
+"Play a tone",5
+"Hit a musical note",5
+"Can you open gate",6
+"Run through that fence",6
+Get into that closed off place,6
+"Run inside house",7
+"Can you go indoors",7
+"Please go inside",7
 "Do whatever you want",-1
