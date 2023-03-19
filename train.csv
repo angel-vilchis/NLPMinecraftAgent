@@ -5,12 +5,13 @@ text,label
 "Interact with the chest",0
 "Use the chest",0
 "Look into the container",0
-"Break wheat",1
+"Go close to wheat",1
 "Gather wheat",1
-"Get plants",1
-"Break flower",1
+"Smell plant",1
+"Look at flower",1
 "Get planted potato",1
 "Break potato",1
+"Go to item from nature",1
 "Reach the horse",2
 "Go to the horse",2
 "Go to that horse",2
@@ -63,3 +64,9 @@ text,label
 "Break into that house",7
 "Explore that house",7
 "Step indoors",7
+"Talk to me",8
+"Lets chat",8
+"Can I talk to you?",8
+"Let me tell you a secret",8
+"Speak",8
+"I'd like to speak with someone",8
