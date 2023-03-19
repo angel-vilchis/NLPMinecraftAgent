@@ -1,38 +1,51 @@
 import time
 import json
-from dataclasses import dataclass
+from object_information import ObjectPosition, DEFAULT_OBJECTS
 from setfit import SetFitModel
 
 nlp_model = SetFitModel.from_pretrained("malmoTextClassifier")
 
-@dataclass
-class ObjectPosition:
-    x: float
-    y: float
-    z: float
-    yaw: float
-    pitch: float
-    id: str
+def get_latest_world_observations(agent_host):
+    world_state = agent_host.peekWorldState()
+    latest_observation = json.loads(world_state.observations[-1].text)
+    return latest_observation
 
-    def teleport_str(self) -> str:
-        return f"tp {self.x} {self.y} {self.z}"
+def flush_world_observations(agent_host):
+    agent_host.getWorldState()
+
+def face_entity(agent_host, name: str, max_rotations=150):
+    """Attempts to face entity. Returns True if successful, False othwerise."""
+    rotations = 0
+    while rotations <= max_rotations:
+        latest_observation = get_latest_world_observations(agent_host)
+        if 'LineOfSight' in latest_observation:
+            if DEBUG: print(f"Line of sight observation:\n{latest_observation['LineOfSight']}\n")
+            if latest_observation['LineOfSight']['type'] == name:
+                agent_host.sendCommand("turn 0")
+                break
+        else:
+            if DEBUG: print("Did not find line of sight")
+        agent_host.sendCommand("turn 0.4")
+        time.sleep(0.1)
+        if DEBUG: print(f"Rotation {rotations}")
+        rotations += 1
+    else:
+        agent_host.sendCommand("turn 0")
+        return False
+    return True
 
 def find_entity(agent_host, name: str, max_retries=5):
     position = None
     retries = 0
     while position is None and retries <= max_retries:
         retries += 1
-        world_state = agent_host.getWorldState()
-        if world_state.number_of_observations_since_last_state == 0:
-            time.sleep(0.5)
-            continue
-        latest_observation = json.loads(world_state.observations[-1].text)
-        if DEBUG: print(latest_observation)
+        latest_observation = get_latest_world_observations(agent_host)
+        if DEBUG: print(f"Latest observation:\n{latest_observation}\n")
         if 'NearbyEntities' in latest_observation:
             for nearby_entity in latest_observation['NearbyEntities']:
-                if DEBUG: print(nearby_entity)
+                if DEBUG: print(f"Nearby Entity:\n{nearby_entity}\n")
                 if nearby_entity['name'] == name:
-                    if DEBUG: print(f"Matched horse entity: {nearby_entity}")
+                    if DEBUG: print(f"Matched {name} entity: {nearby_entity}\n")
                     position = ObjectPosition(
                         x=nearby_entity['x'], 
                         y=nearby_entity['y'], 
@@ -50,10 +63,9 @@ def task_0(agent_host):
     """
     Complete task of opening chest
     """
-    # Move straight towards chest
-    agent_host.sendCommand("move 1")
-    time.sleep(2.25)
-    agent_host.sendCommand("move 0")
+    # Teleport
+    reset_agent(agent_host)
+    agent_host.sendCommand(DEFAULT_OBJECTS["chest"].teleport_str(diff=(0.5, 0, -0.5)))
 
     # Look down
     time.sleep(2.10)
@@ -63,30 +75,19 @@ def task_0(agent_host):
 
     # Open chest
     agent_host.sendCommand("use 1")
-    time.sleep(2)
-
-    if DEBUG:
-        reset_agent(agent_host)
-
 
 def task_1(agent_host):
     """
     Complete task of breaking flower
     """
-    # Move straight towards being adjacent to flower
-    agent_host.sendCommand("move 1")
-    time.sleep(1.3)
-    agent_host.sendCommand("move 0")
+    # Teleport
+    reset_agent(agent_host)
+    agent_host.sendCommand(DEFAULT_OBJECTS["red_flower"].teleport_str())
 
     # Turn to face flower
     agent_host.sendCommand("turn -1")
-    time.sleep(0.5)
+    time.sleep(0.4)
     agent_host.sendCommand("turn 0")
-
-    # Move to get close to flower
-    agent_host.sendCommand("move 1")
-    time.sleep(1.0)
-    agent_host.sendCommand("move 0")
 
     # Look down
     time.sleep(1.0)
@@ -95,23 +96,26 @@ def task_1(agent_host):
     agent_host.sendCommand("pitch 0")
 
     # Break flower
-    # agent_host.sendCommand("attack 1")
-    # agent_host.sendCommand("attack 0")
-    time.sleep(2)
+    agent_host.sendCommand("attack 1")
+    agent_host.sendCommand("attack 0")
 
-    if DEBUG:
-        reset_agent(agent_host)
-
-def task_2(agent_host):
-    """Go to horse"""
-    position = find_entity(agent_host, 'Horse')
+def task_2(agent_host, input_text: str):
+    """Go to entity"""
+    entity = input_text.strip().split()[-1].capitalize()
+    print(f"Going to {entity}")
+    if entity not in DEFAULT_OBJECTS.keys():
+        print(f"'{entity}' is not an entity in this environment.")
+        return
+    entity_specification = DEFAULT_OBJECTS[entity]
+    position = find_entity(agent_host, entity)
     if position is not None:
         if DEBUG: print(position.teleport_str())
-        agent_host.sendCommand(position.teleport_str())
-        agent_host.sendCommand("setYaw 0")
-        agent_host.sendCommand("setPitch 0")
+        agent_host.sendCommand(f"setPitch {entity_specification.find_with_yaw}")
+        agent_host.sendCommand(position.teleport_str(diff=(2, 0, 2)))
+        face_entity(agent_host, entity)
     else:
-        print("Could not find a horse.")
+        print(f"Could not find a {entity}.")
+    flush_world_observations(agent_host)
 
 def task_3(agent_host):
     """Get in water"""
@@ -133,9 +137,10 @@ def task_7(agent_host):
     """Go through door"""
     pass
 
-def reset_agent(agent_host, teleport_x=0.5, teleport_z=0):
+def reset_agent(agent_host, teleport_x=0.5, teleport_z=0, teleport_to_spawn=False):
     """Directly teleport to spawn and reset direction agent is facing."""
-    tp_command = "tp " + str(teleport_x) + " 227 " + str(teleport_z)
-    agent_host.sendCommand(tp_command)
+    if teleport_to_spawn:
+        tp_command = "tp " + str(teleport_x) + " 227 " + str(teleport_z)
+        agent_host.sendCommand(tp_command)
     agent_host.sendCommand("setYaw 0")
     agent_host.sendCommand("setPitch 0")

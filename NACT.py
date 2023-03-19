@@ -1,4 +1,5 @@
 from __future__ import print_function
+from object_information import DEFAULT_OBJECTS
 
 from builtins import range
 try:
@@ -46,9 +47,7 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                 <ServerHandlers>
                   <FlatWorldGenerator generatorString="3;7,220*1,5*3,2;3;,biome_1" forceReset="true"/>
                   <DrawingDecorator>
-                    <DrawBlock x="0" y="227" z="10" type="chest"/>
-                    <DrawBlock x="5" y="227" z="5" type="red_flower"/>
-                    <DrawEntity x="15" y="227" z="15" type="Horse"/>
+                    {}
                   </DrawingDecorator>
                   <ServerQuitWhenAnyAgentFinishes/>
                 </ServerHandlers>
@@ -66,15 +65,18 @@ missionXML='''<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
                   <ObservationFromNearbyEntities>
                     <Range name="NearbyEntities" xrange="200" yrange="200" zrange="200"/>
                   </ObservationFromNearbyEntities>
+                  <ObservationFromRay/>
                 </AgentHandlers>
               </AgentSection>
             </Mission>'''
+missionXML = missionXML.format("\n                    ".join([str(draw_object) for draw_object in DEFAULT_OBJECTS.values()]))
+print(f"Running with mission XML:\n{missionXML}")
 
 agent_host = MalmoPython.AgentHost()
 
 label_names = {0: "Opening chest", 
                1: "Breaking plant",
-               2: "Going to horse",
+               2: "Going to animal",
                3: "Jumping in water", 
                4: "Sitting next to campfire",
                5: "Playing music",
@@ -128,8 +130,8 @@ print("Mission running...")
 while world_state.is_mission_running:
     input_text = input("Enter text: ")
     task = helpers.get_prediction(input_text)
-    print(label_names[task])
-    exec(f"helpers.task_{task}(agent_host)")
+    print(f"Executing task: {label_names[task]}")
+    exec(f"helpers.task_{task}(agent_host{', input_text' if task == 2 else ''})")
     world_state = agent_host.getWorldState()
     
     for error in world_state.errors:
