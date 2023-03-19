@@ -2,9 +2,9 @@ text,label
 "Get me item from storage",0
 "Open that storage and get me something",0
 "Get me diamonds from that chest",0
-"Get me an item from nature",1
-"Break an item on grass",1
-"Extract plant",1
+"Go to plant in the world",1
+"Smell something on grass",1
+"Sniff plant",1
 "Go to horse",2
 "Run towards that pig",2
 "Arrive at the animal",2
@@ -24,4 +24,7 @@ Get into that closed off place,6
 "Run inside house",7
 "Can you go indoors",7
 "Please go inside",7
+"Lets have a conversation",8
+"I will talk to the agent",8
+"Lets speak our minds",8
 "Do whatever you want",-1
