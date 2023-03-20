@@ -121,7 +121,7 @@ print()
 print("Mission running...")
 
 print("Supported tasks:")
-print(list(helpers.label_names.values()))
+print(list(helpers.LABEL_NAMES.values()))
 
 # Loop until mission ends:
 while world_state.is_mission_running:

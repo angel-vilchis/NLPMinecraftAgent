@@ -1,4 +1,5 @@
 text,label
+"Hey Jerry, open the chest",0
 "Get me item from storage",0
 "Open that storage and get me something",0
 "Get me diamonds from that chest",0
@@ -6,6 +7,7 @@ text,label
 "Smell something on grass",1
 "Sniff plant",1
 "Go to horse",2
+"Hey Jerry, go to the pig",2
 "Run towards that pig",2
 "Arrive at the animal",2
 "Go to",2
@@ -14,17 +16,51 @@ text,label
 "Dip your feet in there",3
 "Warm up your hands",4
 "Heat up",4
+"Hey Jerry, heat up",4
 "Go to the fire",4
+"Hey Jerry, make some music",5
 "Please, make music",5
 "Play a tone",5
 "Hit a musical note",5
+"Hey Jerry, please open the gate",6
 "Can you open gate",6
 "Run through that fence",6
 Get into that closed off place,6
 "Run inside house",7
 "Can you go indoors",7
+"Hey Jerry, go inside",7
 "Please go inside",7
 "Lets have a conversation",8
 "I will talk to the agent",8
+"Hey Jerry, let's talk",8
 "Lets speak our minds",8
+"Jerry, go forwards",9
+"Jerry, move forwards",9
+"Let's move forward",9
+"Lets move backwards",10
+"Jerry, move backwards",10
+"Jerry, let's fall back!",10
+"Please strafe left",11
+"Hey Jerry, strafe left",11
+"Let's strafe right",12
+"Hey Jerry, strafe right",12
+"Please pitch upwards",13
+"Hey Jerry, look up",13
+"Please look downwards",14
+"Hey Jerry, look down",14
+"Please turn left",15
+"Hey Jerry, turn left",15
+"Please turn right",16
+"Hey Jerry, turn right",16
+"Let's jump",17
+"Please stop",18
+"Hey Jerry, stop",18
+"I need to hide",19
+"Hey Jerry, crouch for me",19
+"We can stand back up now",20
+"Hey Jerry, attack now",21
+"Hey Jerry, cease the attack",22
+"Hey Jerry, use this item",23
+"Hey Jerry, close this item",24
+"Let's close this item",24
 "Do whatever you want",-1

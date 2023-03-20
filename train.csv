@@ -1,4 +1,5 @@
 text,label
+"Open chest",0
 "Open the chest",0
 "Get something from the chest",0
 "Please, get an item from the chest",0
@@ -70,3 +71,69 @@ text,label
 "Let me tell you a secret",8
 "Speak",8
 "I'd like to speak with someone",8
+"Hey, please move forwards",9
+"Move forwards",9
+"Move forward",9
+"Go forward",9
+"Go forwards",9
+"Advance forward",9
+"Advance forwards",9
+"Full speed ahead",9
+"Go backward",10
+"Fall backward",10
+"Fall back",10
+"Move backward",10
+"Go backwards",10
+"Move backwards",10
+"Hi please go backwards",10
+"Hey please move backward",10
+"Strafe left",11
+"Please strafe left",11
+"Let us strafe left",11
+"We need to strafe left",11
+"Strafe right",12
+"Please strafe right",12
+"Let us strafe right",12
+"We need to strafe right",12
+"Pitch upwards",13
+"Pitch up",13
+"Look upwards",13
+"Look up",13
+"Please look up",13
+"Pitch downwards",14
+"Pitch down",14
+"Look downwards",14
+"Look down",14
+"Turn left",15
+"Go left",15
+"Turn leftward",15
+"Turn right",16
+"Go right",16
+"Turn rightward",16
+"Start jumping",17
+"Jump",17
+"Stop movement",18
+"Stop",18
+"Stop everything",18
+"Start crouching",19
+"Crouch",19
+"Crouch down",19
+"Hide",19
+"Stop crouching",20
+"Stand back up",20
+"Stand up",20
+"Start attack",21
+"Start attacking",21
+"Attack",21
+"Stop attack",22
+"Stop attacking",22
+"Cease fire",22
+"Cease attacking",22
+"Use this",23
+"Open this",23
+"Close this",24
+"Stop using this",24
+"Close chest",24
+"Close the chest",24
+"Close this chest",24
+"Close that chest",24

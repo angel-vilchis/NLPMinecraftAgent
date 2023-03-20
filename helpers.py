@@ -1,3 +1,4 @@
+import re
 import time
 import json
 from object_information import ObjectPosition, DEFAULT_OBJECTS, DrawObjectType
@@ -9,15 +10,35 @@ nlp_model = SetFitModel.from_pretrained("malmoTextClassifier")
 text_gen = transformers.pipeline("text-generation", model="gpt2")
 import warnings
 
-label_names = {0: "Open chest", 
-               1: "Smell plant",
-               2: "Go to mob",
-               3: "Jump in water", 
-               4: "Sit next to campfire",
-               5: "Play music",
-               6: "Go through fence",
-               7: "Go inside door",
-               8: "Talk to user"}
+chest_open = False
+
+LABEL_NAMES = {
+    0: "Open chest", 
+    1: "Smell plant",
+    2: "Go to mob",
+    3: "Jump in water", 
+    4: "Sit next to campfire",
+    5: "Play music",
+    6: "Go through fence",
+    7: "Go inside door",
+    8: "Talk to user",
+    9: "Move forward",
+    10: "Move backward",
+    11: "Strafe left",
+    12: "Strafe right",
+    13: "Pitch upwards",
+    14: "Pitch downwards",
+    15: "Turn left",
+    16: "Turn right",
+    17: "Start jumping",
+    18: "Stop movement",
+    19: "Start crouching",
+    20: "Stop crouching",
+    21: "Start attacking",
+    22: "Stop attacking",
+    23: "Use this",
+    24: "Stop using this"
+}
 
 def get_latest_world_observations(agent_host):
     world_state = agent_host.peekWorldState()
@@ -72,13 +93,14 @@ def find_entity(agent_host, name: str, max_retries=5):
 
 def get_prediction(input_text):
     probs = nlp_model.predict_proba([input_text])[0].tolist()
-    print("Probability prediction:\n", dict(zip(label_names.values(), np.round(probs, 2))))
+    print("Probability prediction:\n", dict(zip(LABEL_NAMES.values(), np.round(probs, 2))))
     return np.argmax(probs)
 
 def task_0(agent_host):
     """
     Complete task of opening chest
     """
+    global chest_open
     # Teleport
     reset_agent(agent_host)
     agent_host.sendCommand(DEFAULT_OBJECTS["chest"].teleport_str(diff=(0.5, 0, -0.5)))
@@ -88,6 +110,10 @@ def task_0(agent_host):
     agent_host.sendCommand("pitch 0.5")
     time.sleep(0.5)
     agent_host.sendCommand("pitch 0")
+
+    # Open chest
+    agent_host.sendCommand("use 1")
+    chest_open = True
 
 def task_1(agent_host):
     """
@@ -110,12 +136,14 @@ def task_1(agent_host):
 
 def task_2(agent_host, input_text: str):
     """Go to entity"""
-    entity = input_text.strip().split()[-1].capitalize()
+    request_words = re.sub(r"[^A-Za-z ]+", "", input_text).strip().title().split()
+    environment_entities = {k for k, v in DEFAULT_OBJECTS.items() if v.draw_object_type == DrawObjectType.DRAW_ENTITY}
+    request_entities = set(request_words) & environment_entities
+    entity = None if len(request_entities) == 0 else next(iter(request_entities))
     print(f"Going to {entity}")
-    if entity not in DEFAULT_OBJECTS.keys():
-        print(f"'{entity}' is not an entity in this environment.")
-        print("Try one of these entities:")
-        print([k for k, v in DEFAULT_OBJECTS.items() if v.draw_object_type == DrawObjectType.DRAW_ENTITY])
+    if entity is None:
+        print("There is no matching entity in this environment.")
+        print(f"Try one of these entities: {environment_entities}")
         return
     entity_specification = DEFAULT_OBJECTS[entity]
     position = find_entity(agent_host, entity)
@@ -185,6 +213,84 @@ def task_8(agent_host):
         agent_host.sendCommand(f"chat {chat_text}")
         chat_input = input("Say something to bot or 'quit'/'q' to stop chatting: ")
 
+def task_9(agent_host):
+    """Move forward"""
+    agent_host.sendCommand("move 1")
+
+def task_10(agent_host):
+    """Move backward"""
+    agent_host.sendCommand("move -1")
+
+def task_11(agent_host):
+    """Strafe left"""
+    agent_host.sendCommand("strafe -1")
+
+def task_12(agent_host):
+    """Strafe right"""
+    agent_host.sendCommand("strafe 1")
+
+def task_13(agent_host):
+    """Pitch upwards"""
+    agent_host.sendCommand("pitch -0.1")
+
+def task_14(agent_host):
+    """Pitch downwards"""
+    agent_host.sendCommand("pitch 0.1")
+
+def task_15(agent_host):
+    """Turn left"""
+    agent_host.sendCommand("turn -0.2")
+
+def task_16(agent_host):
+    """Turn right"""
+    agent_host.sendCommand("turn 0.2")
+
+def task_17(agent_host):
+    """Start jumping"""
+    agent_host.sendCommand("jump 1")
+
+def task_18(agent_host):
+    """Stop movement"""
+    agent_host.sendCommand("move 0")
+    agent_host.sendCommand("strafe 0")
+    agent_host.sendCommand("pitch 0")
+    agent_host.sendCommand("turn 0")
+    agent_host.sendCommand("jump 0")
+    agent_host.sendCommand("attack 0")
+
+def task_19(agent_host):
+    """Start crouching"""
+    agent_host.sendCommand("crouch 1")
+
+def task_20(agent_host):
+    """Stop crouching"""
+    agent_host.sendCommand("crouch 1")
+
+def task_21(agent_host):
+    """Start attacking"""
+    agent_host.sendCommand("attack 1")
+
+def task_22(agent_host):
+    """Stop attacking"""
+    agent_host.sendCommand("attack 0")
+    
+def task_23(agent_host):
+    """Use this"""
+    agent_host.sendCommand("use 1")
+   
+def task_24(agent_host):
+    """Stop using this"""
+    agent_host.sendCommand("use 0")
+    # Workaround to close chests, Issue #772
+    global chest_open
+    if chest_open:
+        latest_observation = get_latest_world_observations(agent_host)
+        agent_host.sendCommand(f"tp {latest_observation.get('XPos', 10.5)} {latest_observation.get('YPos', 227) + 8} {latest_observation.get('ZPos', 3) - 2}")
+        agent_host.sendCommand("setYaw 180")
+        agent_host.sendCommand("setYaw 0")
+        agent_host.sendCommand("setPitch 0")
+        chest_open = False
+
 def go_through_entrance(agent_host):
     agent_host.sendCommand("pitch 0.5")
     time.sleep(0.5)
@@ -213,7 +319,7 @@ def go_through_entrance(agent_host):
     agent_host.sendCommand("use 1"); agent_host.sendCommand("use 0")
 
 def task_execution_print(task):
-    print(f"Executing task: {label_names[task]}")
+    print(f"Executing task: {LABEL_NAMES[task]}")
 
 def reset_agent(agent_host, teleport_x=0.5, teleport_z=0, teleport_to_spawn=False):
     """Directly teleport to spawn and reset direction agent is facing."""
