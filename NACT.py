@@ -120,6 +120,9 @@ while not world_state.has_mission_begun:
 print()
 print("Mission running...")
 
+print("Supported tasks:")
+print(list(helpers.label_names.values()))
+
 # Loop until mission ends:
 while world_state.is_mission_running:
     input_text = input("\nEnter text: ")
