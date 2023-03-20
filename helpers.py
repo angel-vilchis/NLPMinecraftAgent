@@ -170,6 +170,7 @@ def task_7(agent_host):
 
 def task_8(agent_host):
     """Chat with agent"""
+    reset_agent(agent_host)
     user_prompt = "User: "
     agent_prompt = "\nMy long response: "
 
