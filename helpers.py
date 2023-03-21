@@ -1,14 +1,14 @@
 import re
 import time
 import json
-from object_information import ObjectPosition, DEFAULT_OBJECTS, DrawObjectType
-from setfit import SetFitModel
-import transformers
+import warnings
 import numpy as np
+from object_information import ObjectPosition, DEFAULT_OBJECTS, DrawObjectType
+import transformers
+from setfit import SetFitModel
 
 nlp_model = SetFitModel.from_pretrained("malmoTextClassifier")
 text_gen = transformers.pipeline("text-generation", model="gpt2")
-import warnings
 
 chest_open = False
 
