@@ -13,24 +13,24 @@ text_gen = transformers.pipeline("text-generation", model="gpt2")
 chest_open = False
 
 LABEL_INFO = {
-    0:  {"desc": "Open chest",            "response": "I'm opening the chest"}, 
+    0:  {"desc": "Open chest",            "response": "Ok, I'm opening the chest."}, 
     1:  {"desc": "Smell plant",           "response": "Heading over to smell the plant!"},
-    2:  {"desc": "Go to mob",             "response": "I'm scared of that, but I'll go to it for you!"},
+    2:  {"desc": "Go to mob",             "response": None},
     3:  {"desc": "Jump in water",         "response": "I'm a bad swimmer, but I'll do it!"},
     4:  {"desc": "Sit next to campfire",  "response": "Time to get cozy..."},
     5:  {"desc": "Play music",            "response": "I love music!"},
     6:  {"desc": "Go through fence",      "response": "Let's go see what is on the other side of that fence."},
     7:  {"desc": "Go inside door",        "response": "This is me, make yourself at home."},
     8:  {"desc": "Talk to user",          "response": "I'd love to talk to you!"},
-    9:  {"desc": "Move forward",          "response": "Moving forward..."},
-    10: {"desc": "Move backward",         "response": "Moving backward..."},
-    11: {"desc": "Strafe left",           "response": "Strafing left..."},
-    12: {"desc": "Strafe right",          "response": "Strafing right..."},
-    13: {"desc": "Pitch upwards",         "response": "Looking up..."},
-    14: {"desc": "Pitch downwards",       "response": "Looking down..."},
-    15: {"desc": "Turn left",             "response": "Turning left..."},
-    16: {"desc": "Turn right",            "response": "Turning right..."},
-    17: {"desc": "Start jumping",         "response": "Starting to jump..."},
+    9:  {"desc": "Move forward",          "response": "Ok, moving forward now. Let me know when to stop."},
+    10: {"desc": "Move backward",         "response": "Ok, moving backward now. Let me know when to stop."},
+    11: {"desc": "Strafe left",           "response": "Ok, strafing left now. Let me know when to stop."},
+    12: {"desc": "Strafe right",          "response": "Ok, strafing right now. Let me know when to stop."},
+    13: {"desc": "Pitch upwards",         "response": "Ok, pitching upwards now. Let me know when to stop."},
+    14: {"desc": "Pitch downwards",       "response": "Ok, pitching downwards now. Let me know when to stop."},
+    15: {"desc": "Turn left",             "response": "Ok, turning left now. Let me know when to stop."},
+    16: {"desc": "Turn right",            "response": "Ok, turning right now. Let me know when to stop."},
+    17: {"desc": "Start jumping",         "response": "Ok, starting to jump now. Let me know when to stop."},
     18: {"desc": "Stop movement",         "response": "Stopping movement."},
     19: {"desc": "Start crouching",       "response": "I'll crouch, but don't leave me like this for too long!"},
     20: {"desc": "Stop crouching",        "response": "I'll stand straight up."},
@@ -140,20 +140,23 @@ def task_2(agent_host, input_text: str):
     environment_entities = {k for k, v in DEFAULT_OBJECTS.items() if v.draw_object_type == DrawObjectType.DRAW_ENTITY}
     request_entities = set(request_words) & environment_entities
     entity = None if len(request_entities) == 0 else next(iter(request_entities))
-    print(f"Going to {entity}")
     if entity is None:
-        print("There is no matching entity in this environment.")
+        agent_host.sendCommand("chat I could not find that entity in this environment.")
         print(f"Try one of these entities: {environment_entities}")
         return
+    agent_host.sendCommand(f"chat Ok, I'm looking for the {entity} now.")
     entity_specification = DEFAULT_OBJECTS[entity]
     position = find_entity(agent_host, entity)
     if position is not None:
         if DEBUG: print(position.teleport_str())
         agent_host.sendCommand(f"setPitch {entity_specification.find_with_yaw}")
         agent_host.sendCommand(position.teleport_str(diff=(2, 0, 2)))
-        face_entity(agent_host, entity)
+        facing_entity = face_entity(agent_host, entity)
+        if facing_entity:
+            agent_host.sendCommand(f"chat Found the {entity}!")
     else:
-        print(f"Could not find a {entity}.")
+        if DEBUG: print(f"Could not find a {entity}.")
+        agent_host.sendCommand(f"chat I could not find the {entity}. It may not be nearby.")
     flush_world_observations(agent_host)
 
 def task_3(agent_host):
@@ -321,7 +324,8 @@ def go_through_entrance(agent_host):
 def task_execution_print(agent_host, task):
     desc, response = LABEL_INFO[task]["desc"], LABEL_INFO[task]["response"]
     print(f"Executing task: {desc}")
-    agent_host.sendCommand(f"chat {response}")
+    if response:
+        agent_host.sendCommand(f"chat {response}")
 
 def reset_agent(agent_host, teleport_x=0.5, teleport_z=0, teleport_to_spawn=False):
     """Directly teleport to spawn and reset direction agent is facing."""
