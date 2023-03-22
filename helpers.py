@@ -267,7 +267,7 @@ def task_19(agent_host):
 
 def task_20(agent_host):
     """Stop crouching"""
-    agent_host.sendCommand("crouch 1")
+    agent_host.sendCommand("crouch 0")
 
 def task_21(agent_host):
     """Start attacking"""
