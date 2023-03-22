@@ -12,32 +12,32 @@ text_gen = transformers.pipeline("text-generation", model="gpt2")
 
 chest_open = False
 
-LABEL_NAMES = {
-    0: "Open chest", 
-    1: "Smell plant",
-    2: "Go to mob",
-    3: "Jump in water", 
-    4: "Sit next to campfire",
-    5: "Play music",
-    6: "Go through fence",
-    7: "Go inside door",
-    8: "Talk to user",
-    9: "Move forward",
-    10: "Move backward",
-    11: "Strafe left",
-    12: "Strafe right",
-    13: "Pitch upwards",
-    14: "Pitch downwards",
-    15: "Turn left",
-    16: "Turn right",
-    17: "Start jumping",
-    18: "Stop movement",
-    19: "Start crouching",
-    20: "Stop crouching",
-    21: "Start attacking",
-    22: "Stop attacking",
-    23: "Use this",
-    24: "Stop using this"
+LABEL_INFO = {
+    0:  {"desc": "Open chest",            "response": "I'm opening the chest"}, 
+    1:  {"desc": "Smell plant",           "response": "Heading over to smell the plant!"},
+    2:  {"desc": "Go to mob",             "response": "I'm scared of that, but I'll go to it for you!"},
+    3:  {"desc": "Jump in water",         "response": "I'm a bad swimmer, but I'll do it!"},
+    4:  {"desc": "Sit next to campfire",  "response": "Time to get cozy..."},
+    5:  {"desc": "Play music",            "response": "I love music!"},
+    6:  {"desc": "Go through fence",      "response": "Let's go see what is on the other side of that fence."},
+    7:  {"desc": "Go inside door",        "response": "This is me, make yourself at home."},
+    8:  {"desc": "Talk to user",          "response": "I'd love to talk to you!"},
+    9:  {"desc": "Move forward",          "response": "Moving forward..."},
+    10: {"desc": "Move backward",         "response": "Moving backward..."},
+    11: {"desc": "Strafe left",           "response": "Strafing left..."},
+    12: {"desc": "Strafe right",          "response": "Strafing right..."},
+    13: {"desc": "Pitch upwards",         "response": "Looking up..."},
+    14: {"desc": "Pitch downwards",       "response": "Looking down..."},
+    15: {"desc": "Turn left",             "response": "Turning left..."},
+    16: {"desc": "Turn right",            "response": "Turning right..."},
+    17: {"desc": "Start jumping",         "response": "Starting to jump..."},
+    18: {"desc": "Stop movement",         "response": "Stopping movement."},
+    19: {"desc": "Start crouching",       "response": "I'll crouch, but don't leave me like this for too long!"},
+    20: {"desc": "Stop crouching",        "response": "I'll stand straight up."},
+    21: {"desc": "Start attacking",       "response": "I'm a lover, not a figher, but I'll attack this time."},
+    22: {"desc": "Stop attacking",        "response": "Great, I'm tired of attacking, anyways."},
+    23: {"desc": "Use this",              "response": "What does this do?"},
+    24: {"desc": "Stop using this",       "response": "I'm done using this."},
 }
 
 def get_latest_world_observations(agent_host):
@@ -49,7 +49,7 @@ def flush_world_observations(agent_host):
     agent_host.getWorldState()
 
 def face_entity(agent_host, name: str, max_rotations=150):
-    """Attempts to face entity. Returns True if successful, False othwerise."""
+    """Attempts to face entity. Returns True if successful, False otherwise."""
     rotations = 0
     while rotations <= max_rotations:
         latest_observation = get_latest_world_observations(agent_host)
@@ -93,7 +93,7 @@ def find_entity(agent_host, name: str, max_retries=5):
 
 def get_prediction(input_text):
     probs = nlp_model.predict_proba([input_text])[0].tolist()
-    print("Probability prediction:\n", dict(zip(LABEL_NAMES.values(), np.round(probs, 2))))
+    print("Probability prediction:\n", dict(zip([v["desc"] for v in LABEL_INFO.values()], np.round(probs, 2))))
     return np.argmax(probs)
 
 def task_0(agent_host):
@@ -318,8 +318,10 @@ def go_through_entrance(agent_host):
     time.sleep(0.5)
     agent_host.sendCommand("use 1"); agent_host.sendCommand("use 0")
 
-def task_execution_print(task):
-    print(f"Executing task: {LABEL_NAMES[task]}")
+def task_execution_print(agent_host, task):
+    desc, response = LABEL_INFO[task]["desc"], LABEL_INFO[task]["response"]
+    print(f"Executing task: {desc}")
+    agent_host.sendCommand(f"chat {response}")
 
 def reset_agent(agent_host, teleport_x=0.5, teleport_z=0, teleport_to_spawn=False):
     """Directly teleport to spawn and reset direction agent is facing."""

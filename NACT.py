@@ -121,13 +121,13 @@ print()
 print("Mission running...")
 
 print("Supported tasks:")
-print(list(helpers.LABEL_NAMES.values()))
+print(list([v["desc"] for v in helpers.LABEL_INFO.values()]))
 
 # Loop until mission ends:
 while world_state.is_mission_running:
     input_text = input("\nEnter text: ")
     task = helpers.get_prediction(input_text)
-    helpers.task_execution_print(task)
+    helpers.task_execution_print(agent_host, task)
     exec(f"helpers.task_{task}(agent_host{', input_text' if task == 2 else ''})")
     world_state = agent_host.getWorldState()
     
